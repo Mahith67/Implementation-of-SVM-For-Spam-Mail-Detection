@@ -17,14 +17,85 @@ To write a program to implement the SVM For Spam Mail Detection.
 ```
 /*
 Program to implement the SVM For Spam Mail Detection..
-Developed by: 
-RegisterNumber:  
+Developed by: MAHITH M
+RegisterNumber:25004610 
 */
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, classification_report
+
+# Load the data
+df = pd.read_csv('spam.csv', encoding='latin-1')
+
+# Keep only the first two columns and rename them
+df = df.iloc[:, :2]
+df.columns = ['label', 'message']
+
+# Convert labels: ham = 0, spam = 1
+df['label'] = df['label'].map({'ham': 0, 'spam': 1})
+
+# Remove any rows with missing values
+df = df.dropna()
+
+# Display basic info
+print("Dataset shape:", df.shape)
+print("\nFirst 5 rows:")
+print(df.head())
+print("\nClass distribution:")
+print(df['label'].value_counts())
+
+# Split data into features (X) and target (y)
+X = df['message']
+y = df['label']
+
+# Split into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Convert text to numerical features using TF-IDF
+vectorizer = TfidfVectorizer(max_features=5000, stop_words='english')
+X_train_vectorized = vectorizer.fit_transform(X_train)
+X_test_vectorized = vectorizer.transform(X_test)
+
+# Create and train SVM model
+svm_model = SVC(kernel='linear', random_state=42)
+svm_model.fit(X_train_vectorized, y_train)
+
+# Make predictions
+y_pred = svm_model.predict(X_test_vectorized)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f"\nAccuracy: {accuracy:.2f}")
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred, target_names=['Ham', 'Spam']))
+
+# Test with some example messages
+test_messages = [
+    "Hey, are we still meeting for lunch tomorrow?",
+    "CONGRATULATIONS! You've won a FREE cruise to the Andaman! Call now to claim your prize!",
+    "Can you pick up some milk on your way home?",
+    "URGENT! Your account has been suspended. Click here to verify your details immediately."
+]
+
+print("\n" + "="*50)
+print("TESTING WITH EXAMPLE MESSAGES:")
+print("="*50)
+
+for msg in test_messages:
+    msg_vectorized = vectorizer.transform([msg])
+    prediction = svm_model.predict(msg_vectorized)[0]
+    result = "SPAM" if prediction == 1 else "HAM"
+    print(f"Message: {msg[:50]}... -> {result}")
 ```
 
 ## Output:
-![SVM For Spam Mail Detection](sam.png)
-
+<img width="986" height="320" alt="image" src="https://github.com/user-attachments/assets/c28e203c-4c5a-438b-95c0-85652a13fa24" />
+<img width="691" height="375" alt="image" src="https://github.com/user-attachments/assets/774518e3-a4d7-4e46-844d-56850570c702" />
+<img width="974" height="354" alt="image" src="https://github.com/user-attachments/assets/d1c9f9ba-b937-4105-93ec-9fafdd769f0c" />
+<img width="980" height="185" alt="image" src="https://github.com/user-attachments/assets/8dd1b0f6-439a-4ee9-af35-221fef961702" />
 
 ## Result:
 Thus the program to implement the SVM For Spam Mail Detection is written and verified using python programming.
